@@ -1,0 +1,15 @@
+# Internal/private docs — setup notes, plans, Q&A. Local only, NEVER commit.
+docs/
+
+# dbt connection profiles — contains the Databricks token. NEVER commit.
+.dbt/
+
+# Python
+__pycache__/
+*.pyc
+
+# uv virtual environment (uv.lock IS committed)
+.venv/
+
+# Local env files
+.env
