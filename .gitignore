@@ -1,6 +1,9 @@
 # Internal/private docs — setup notes, plans, Q&A. Local only, NEVER commit.
 docs/
 
+# Olist CSVs (~120MB, downloaded manually from Kaggle)
+data/
+
 # dbt connection profiles — contains the Databricks token. NEVER commit.
 .dbt/
 

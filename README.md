@@ -45,12 +45,26 @@ PostgreSQL → Airbyte → Databricks Delta Lake → dbt Core → Gold Analytics
 
 ## Architecture Layers
 
+## Dataset
+
+Download the **Brazilian E-Commerce Public Dataset by Olist** from Kaggle and unzip the CSVs into `data/olist/`:
+
+[https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+
+Then load into the source PostgreSQL database:
+
+```bash
+uv run python airflow-docker/scripts/load_olist_to_postgres.py --data-dir ./data/olist
+```
+
+---
+
 ### 1. Source Layer
 
 **PostgreSQL**
 
 **Olist Brazilian E-Commerce Public Dataset** (Kaggle) — 9 tables of real e-commerce
-transactions, loaded into PostgreSQL via `scripts/load_olist_to_postgres.py`.
+transactions, loaded into PostgreSQL via `airflow-docker/scripts/load_olist_to_postgres.py`.
 
 ---
 
