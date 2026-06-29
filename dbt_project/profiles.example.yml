@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------------------
+# Copy this to your local ~/.dbt/profiles.yml  (the folder mounted into the
+# Airflow containers at /opt/airflow/.dbt, see docker-compose DBT_PROFILES_DIR).
+#
+# Fill in your Databricks SQL Warehouse details (Free Edition works):
+#   host       -> "Server hostname"  e.g. dbc-xxxx.cloud.databricks.com  (no https://)
+#   http_path  -> SQL Warehouse "HTTP path"  e.g. /sql/1.0/warehouses/abc123
+#   token      -> a Databricks personal access token
+#   catalog    -> Unity Catalog catalog where Airbyte lands raw + dbt writes models
+#   schema     -> target schema for dbt models (e.g. analytics)
+#
+# Values can be hardcoded or supplied via env vars (shown below).
+# ---------------------------------------------------------------------------
+dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: databricks
+      host: "{{ env_var('DBT_DATABRICKS_HOST') }}"
+      http_path: "{{ env_var('DBT_DATABRICKS_HTTP_PATH') }}"
+      token: "{{ env_var('DBT_DATABRICKS_TOKEN') }}"
+      catalog: "{{ env_var('DBT_DATABRICKS_CATALOG', 'olist') }}"
+      schema: "{{ env_var('DBT_DATABRICKS_SCHEMA', 'analytics') }}"
+      threads: 4

@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: revenue_by_month
+    description: Monthly revenue, order count, and average order value.
+    columns:
+      - name: order_month
+        tests: [unique, not_null]
+      - name: total_revenue
+        tests: [not_null]
+
+  - name: top_products
+    description: Products ranked by total revenue, with units sold and avg review.
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+
+  - name: top_customers
+    description: Customers (by customer_unique_id) ranked by total spend.
+    columns:
+      - name: customer_unique_id
+        tests: [unique, not_null]
+      - name: total_spend
+        tests: [not_null]

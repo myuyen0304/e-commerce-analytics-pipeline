@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    description: >
+      Raw Olist tables landed in Databricks by Airbyte (from the source Postgres).
+      Adjust `database` (Unity Catalog catalog) and `schema` to match your Airbyte
+      destination namespace. Airbyte (Destinations V2) keeps the original column
+      names and adds `_airbyte_extracted_at`, `_airbyte_raw_id`, `_airbyte_meta`.
+    database: olist        # Unity Catalog catalog used by the Airbyte destination
+    schema: olist_raw      # schema where Airbyte writes the streams
+    tables:
+      - name: customers
+      - name: orders
+        loaded_at_field: _airbyte_extracted_at
+      - name: order_items
+      - name: order_payments
+      - name: order_reviews
+      - name: products
+      - name: sellers
+      - name: geolocation
+      - name: category_translation
