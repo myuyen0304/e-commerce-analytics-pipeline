@@ -1,0 +1,7 @@
+apache-airflow-providers-airbyte==5.5.0
+astronomer-cosmos
+dbt-core
+dbt-databricks
+pandas
+psycopg2-binary
+sqlalchemy
