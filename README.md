@@ -47,7 +47,7 @@ PostgreSQL → Airbyte → Databricks Delta Lake → dbt Core → Gold Analytics
 
 ## Dataset
 
-Download the **Brazilian E-Commerce Public Dataset by Olist** from Kaggle and unzip the CSVs into `data/olist/`:
+Download the **Brazilian E-Commerce Public Dataset by Olist** from Kaggle and unzip the CSVs into `data/`:
 
 [https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
 

@@ -5,7 +5,7 @@ after `docker compose up source-postgres` (or wrap it in an Airflow task to
 mimic a source that keeps receiving new rows).
 
 Usage (from host, with deps installed: pandas, sqlalchemy, psycopg2-binary):
-    python load_olist_to_postgres.py --data-dir ./data/olist
+    python load_olist_to_postgres.py --data-dir ./data
 
 Connection is read from env vars (same names as docker-compose / .env):
     SOURCE_POSTGRES_HOST (default: localhost)
@@ -98,8 +98,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Load Olist CSVs into source Postgres.")
     parser.add_argument(
         "--data-dir",
-        default=os.getenv("OLIST_DATA_DIR", "./data/olist"),
-        help="Folder containing the Olist *.csv files (default: ./data/olist)",
+        default=os.getenv("OLIST_DATA_DIR", "./data"),
+        help="Folder containing the Olist *.csv files (default: ./data)",
     )
     parser.add_argument(
         "--schema",
