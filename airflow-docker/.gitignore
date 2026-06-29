@@ -1,0 +1,9 @@
+venv/
+logs/
+.env
+__pycache__/
+*.pyc
+*.log
+
+# Olist CSVs (downloaded manually from Kaggle, ~120MB)
+data/
