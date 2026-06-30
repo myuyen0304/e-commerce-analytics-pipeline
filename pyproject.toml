@@ -3,7 +3,10 @@ name = "e-commerce-data-pipeline"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "dlt[databricks,sql-database]>=1.28.1",
     "pandas>=3.0.4",
+    "psycopg2-binary>=2.9.12",
+    "sqlalchemy>=2.0.51",
 ]
 
 [dependency-groups]
