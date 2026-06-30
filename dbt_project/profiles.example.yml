@@ -6,7 +6,7 @@
 #   host       -> "Server hostname"  e.g. dbc-xxxx.cloud.databricks.com  (no https://)
 #   http_path  -> SQL Warehouse "HTTP path"  e.g. /sql/1.0/warehouses/abc123
 #   token      -> a Databricks personal access token
-#   catalog    -> Unity Catalog catalog where Airbyte lands raw + dbt writes models
+#   catalog    -> Unity Catalog catalog where dlt lands raw + dbt writes models
 #   schema     -> target schema for dbt models (e.g. analytics)
 #
 # Values can be hardcoded or supplied via env vars (shown below).
