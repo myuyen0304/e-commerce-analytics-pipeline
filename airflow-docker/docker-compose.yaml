@@ -75,7 +75,7 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-apache-airflow-providers-airbyte==5.5.0 astronomer-cosmos dbt-core dbt-databricks}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-astronomer-cosmos dbt-core dbt-databricks dlt[databricks,sql_database] pandas psycopg2-binary sqlalchemy}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
   volumes:
@@ -113,7 +113,7 @@ services:
     restart: always
 
   # Source OLTP database (separate from Airflow metadata DB above).
-  # Holds the Olist e-commerce tables that Airbyte reads from.
+  # Holds the Olist e-commerce tables that the dlt EL script reads from.
   source-postgres:
     image: postgres:16
     environment:
@@ -121,7 +121,7 @@ services:
       POSTGRES_PASSWORD: ${SOURCE_POSTGRES_PASSWORD:-olist}
       POSTGRES_DB: ${SOURCE_POSTGRES_DB:-olist}
     ports:
-      # exposed so Airbyte (running outside this compose network) can connect
+      # exposed on the host so local dlt runs (localhost:5433) can connect
       - "${SOURCE_POSTGRES_PORT:-5433}:5432"
     volumes:
       - source-postgres-db-volume:/var/lib/postgresql/data
