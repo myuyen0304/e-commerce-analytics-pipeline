@@ -3,16 +3,15 @@ version: 2
 sources:
   - name: olist_raw
     description: >
-      Raw Olist tables landed in Databricks by Airbyte (from the source Postgres).
-      Adjust `database` (Unity Catalog catalog) and `schema` to match your Airbyte
-      destination namespace. Airbyte (Destinations V2) keeps the original column
-      names and adds `_airbyte_extracted_at`, `_airbyte_raw_id`, `_airbyte_meta`.
-    database: olist        # Unity Catalog catalog used by the Airbyte destination
-    schema: olist_raw      # schema where Airbyte writes the streams
+      Raw Olist tables landed in Databricks by dlt (from the source Postgres).
+      Adjust `database` (Unity Catalog catalog) and `schema` to match the dlt
+      `dataset_name`. dlt keeps the original column names and adds `_dlt_id` and
+      `_dlt_load_id` to every row (used downstream for deduplication).
+    database: workspace        # Unity Catalog used by the dlt databricks destination
+    schema: olist_raw          # dlt dataset_name where the tables are written
     tables:
       - name: customers
       - name: orders
-        loaded_at_field: _airbyte_extracted_at
       - name: order_items
       - name: order_payments
       - name: order_reviews
