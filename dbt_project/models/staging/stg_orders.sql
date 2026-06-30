@@ -12,5 +12,5 @@ select
     cast(order_estimated_delivery_date as timestamp) as order_estimated_delivery_date
 from source
 qualify row_number() over (
-    partition by order_id order by _airbyte_extracted_at desc
+    partition by order_id order by _dlt_load_id desc
 ) = 1
