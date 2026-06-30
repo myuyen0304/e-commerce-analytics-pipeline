@@ -10,5 +10,5 @@ select
     cast(payment_value as decimal(12, 2)) as payment_value
 from source
 qualify row_number() over (
-    partition by order_id, payment_sequential order by _airbyte_extracted_at desc
+    partition by order_id, payment_sequential order by _dlt_load_id desc
 ) = 1
