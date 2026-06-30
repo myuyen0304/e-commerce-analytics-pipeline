@@ -1,17 +1,17 @@
 # dbt project (Olist analytics on Databricks)
 
-Transforms the raw Olist tables (landed in Databricks by Airbyte) into analytics-ready
+Transforms the raw Olist tables (landed in Databricks by dlt) into analytics-ready
 Gold models. Full setup is in the local (untracked) `docs/SETUP.md`.
 
 ## Layers
 
 ```
-olist_raw.* (Airbyte)  ->  staging (views)  ->  gold (tables)
+olist_raw.* (dlt)  ->  staging (views)  ->  gold (tables)
 ```
 
 - **staging/** — 1:1 cleaned models: `stg_orders`, `stg_order_items`, `stg_customers`,
   `stg_products` (English category names joined), `stg_payments`, `stg_reviews`.
-  Deduplicated on natural keys using Airbyte's `_airbyte_extracted_at`.
+  Deduplicated on natural keys using dlt's `_dlt_load_id`.
 - **gold/** — `revenue_by_month`, `top_products`, `top_customers`.
 
 ## Common commands
@@ -29,7 +29,7 @@ dbt parse                 # regenerate target/manifest.json (required by Cosmos/
 - Connection: `~/.dbt/profiles.yml` (copy from `profiles.example.yml`), profile
   `dbt_project`, target `dev`. Reads `DBT_DATABRICKS_*` env vars.
 - Raw source namespace: edit `database`/`schema` in `models/staging/_sources.yml` to match
-  the Airbyte destination (default catalog `olist`, schema `olist_raw`).
+  the dlt destination (default catalog `olist`, schema `olist_raw`).
 
 > Revenue excludes orders with status `canceled`/`unavailable`. Customers are deduplicated
 > to the real person via `customer_unique_id`.
