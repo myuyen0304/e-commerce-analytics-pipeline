@@ -1,7 +1,5 @@
 import os
 from airflow import DAG
-from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
-from airflow.providers.airbyte.sensors.airbyte import AirbyteJobSensor
 from airflow.providers.standard.operators.bash import BashOperator
 from cosmos import (
     ProjectConfig,
@@ -11,27 +9,21 @@ from cosmos import (
 
 DBT_PROJECT_PATH = "/opt/airflow/dbt_project"
 
-# Airbyte connection UUID (Connections page in the Airbyte UI -> copy the id from the URL).
-# Set it via the AIRBYTE_CONNECTION_ID env var (see airflow-docker/.env) so it is not
-# hardcoded. Falls back to a placeholder that will fail loudly until configured.
-AIRBYTE_CONNECTION_ID = os.environ.get("AIRBYTE_CONNECTION_ID", "REPLACE_WITH_AIRBYTE_CONNECTION_UUID")
+# EL is done by dlt (replaces the old Airbyte sync). The script streams the Olist
+# tables from the source Postgres into Databricks (<catalog>.olist_raw.*) in chunks,
+# so memory stays bounded. Source/Databricks config comes from env vars (see .env):
+#   OLIST_SOURCE_DSN  -> postgresql://olist:olist@source-postgres:5432/olist (worker)
+#   DBT_DATABRICKS_*  -> reused for the dlt databricks destination credentials
+DLT_LOAD_SCRIPT = "/opt/airflow/scripts/load_olist_to_databricks.py"
 
 with DAG(dag_id='customer_analytics_pipeline',
          schedule='@once',
          max_active_runs=1
     ) as dag:
 
-    trigger_sync= AirbyteTriggerSyncOperator(
-        task_id='trigger_airbyte_sync',
-        airbyte_conn_id='airbyte_conn',  # connection id from Airflow (configure in UI)
-        connection_id=AIRBYTE_CONNECTION_ID,  # connection UUID from Airbyte
-        asynchronous=True,
-    )
-
-    monitor_sync = AirbyteJobSensor(
-        task_id='wait_for_airbyte_sync',
-        airbyte_conn_id='airbyte_conn', # connection id from Airflow
-        airbyte_job_id= trigger_sync.output
+    dlt_ingest = BashOperator(
+        task_id='dlt_ingest_postgres_to_databricks',
+        bash_command=f'python {DLT_LOAD_SCRIPT}',
     )
 
     dbt_task = DbtTaskGroup(
@@ -51,5 +43,5 @@ with DAG(dag_id='customer_analytics_pipeline',
         task_id="end_task",
         bash_command='echo "Executed all Models.."',
     )
-    
-    trigger_sync >> monitor_sync >> dbt_task >> end_task
+
+    dlt_ingest >> dbt_task >> end_task
