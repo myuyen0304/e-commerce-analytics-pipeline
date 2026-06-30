@@ -1,6 +1,6 @@
 """Load the Olist Brazilian E-Commerce CSV files into the source Postgres DB.
 
-This simulates the "source OLTP system" that Airbyte reads from. Run it once
+This simulates the "source OLTP system" that the dlt EL script reads from. Run it once
 after `docker compose up source-postgres` (or wrap it in an Airflow task to
 mimic a source that keeps receiving new rows).
 
@@ -37,7 +37,7 @@ CSV_TO_TABLE = {
     "product_category_name_translation.csv": "category_translation",
 }
 
-# Columns to parse as timestamps so Airbyte/dbt see real datetime types.
+# Columns to parse as timestamps so dlt/dbt see real datetime types.
 DATE_COLUMNS = {
     "orders": [
         "order_purchase_timestamp",
