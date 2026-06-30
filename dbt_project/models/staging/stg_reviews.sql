@@ -9,5 +9,5 @@ select
     cast(review_creation_date as timestamp)    as review_creation_date
 from source
 qualify row_number() over (
-    partition by review_id, order_id order by _airbyte_extracted_at desc
+    partition by review_id, order_id order by _dlt_load_id desc
 ) = 1
