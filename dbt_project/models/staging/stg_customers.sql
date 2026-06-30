@@ -10,5 +10,5 @@ select
     cast(customer_state as string)         as customer_state
 from source
 qualify row_number() over (
-    partition by customer_id order by _airbyte_extracted_at desc
+    partition by customer_id order by _dlt_load_id desc
 ) = 1
