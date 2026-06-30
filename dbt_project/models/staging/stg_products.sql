@@ -2,7 +2,7 @@
 with products as (
     select * from {{ source('olist_raw', 'products') }}
     qualify row_number() over (
-        partition by product_id order by _airbyte_extracted_at desc
+        partition by product_id order by _dlt_load_id desc
     ) = 1
 ),
 translation as (
