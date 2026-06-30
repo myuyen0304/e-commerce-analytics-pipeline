@@ -4,7 +4,7 @@
 
 This project demonstrates a modern Data Engineering solution that builds an automated, scalable, and production-style ELT pipeline using the Modern Data Stack.
 
-The pipeline ingests customer data from PostgreSQL using Airbyte, stores raw and processed data in a Databricks Lakehouse powered by Delta Lake, transforms data using dbt Core, and orchestrates the entire workflow through Apache Airflow and Astronomer Cosmos.
+The pipeline ingests customer data from PostgreSQL using dlt (data load tool), stores raw and processed data in a Databricks Lakehouse powered by Delta Lake, transforms data using dbt Core, and orchestrates the entire workflow through Apache Airflow and Astronomer Cosmos.
 
 The final output consists of analytics-ready Gold Layer data models that can be consumed by BI and reporting tools.
 
@@ -14,14 +14,14 @@ The final output consists of analytics-ready Gold Layer data models that can be 
 
 ### Data Flow
 
-PostgreSQL → Airbyte → Databricks Delta Lake → dbt Core → Gold Analytics Models
+PostgreSQL → dlt → Databricks Delta Lake → dbt Core → Gold Analytics Models
 
 ### Technology Stack
 
 | Layer                   | Technology                  |
 | ----------------------- | --------------------------- |
 | Source Database         | PostgreSQL                  |
-| Data Ingestion          | Airbyte                     |
+| Data Ingestion          | dlt (data load tool)        |
 | Storage                 | Databricks Lakehouse        |
 | Table Format            | Delta Lake                  |
 | Transformation          | dbt Core                    |
@@ -70,16 +70,18 @@ transactions, loaded into PostgreSQL via `airflow-docker/scripts/load_olist_to_p
 
 ### 2. Ingestion Layer
 
-**Airbyte**
+**dlt (data load tool)**
 
 Features:
 
-* Incremental Data Loading
-* Change Data Capture (CDC)
-* Schema Mapping
-* Connection Monitoring
+* Chunked streaming extract — bounded memory even for the ~1M-row geolocation table
+* Automatic schema inference and evolution
+* `replace` write disposition for idempotent full refreshes
+* Lineage metadata (`_dlt_id`, `_dlt_load_id`) added to every row
 
-Data is extracted from PostgreSQL and loaded into Databricks Delta Lake.
+A single Python script (`scripts/load_olist_to_databricks.py`) extracts the Olist tables
+from PostgreSQL and loads them into Databricks Delta Lake (`<catalog>.olist_raw.*`). It runs
+in-process from the Airflow worker, so no external ingestion service is required.
 
 ---
 
@@ -89,7 +91,7 @@ Data is extracted from PostgreSQL and loaded into Databricks Delta Lake.
 
 #### Raw Layer
 
-Stores ingested source data with Airbyte metadata.
+Stores ingested source data with dlt metadata (`_dlt_id`, `_dlt_load_id`).
 
 Example:
 
@@ -113,10 +115,9 @@ Business-ready analytical models.
 
 Models:
 
-* customer_kpi
-* customer_category
-* revenue_by_location
+* revenue_by_month
 * top_customers
+* top_products
 
 ---
 
@@ -150,11 +151,9 @@ Features:
 Pipeline execution sequence:
 
 ```text
-Trigger Airbyte Sync
+Run dlt Ingestion (Postgres → Databricks)
         ↓
-Wait for Airbyte Completion
-        ↓
-Run dbt Models
+Run dbt Models (Cosmos DbtTaskGroup)
         ↓
 Pipeline Complete
 ```
@@ -165,14 +164,12 @@ Airflow DAG automates the complete workflow from ingestion to transformation.
 
 ## Incremental Processing
 
-### Airbyte Incremental Sync
+### dlt Ingestion
 
-Validation Process:
-
-1. Initial full load completed
-2. New records inserted into PostgreSQL
-3. Airbyte detected only new records
-4. Incremental synchronization executed successfully
+The current setup loads each table with `write_disposition="replace"` (idempotent full
+refresh) — simple and reliable for the Olist dataset. dlt also supports incremental loading
+out of the box: set a cursor field (e.g. `order_purchase_timestamp`) and dlt persists state
+so each run only pulls new or updated rows.
 
 Benefits:
 
@@ -202,21 +199,18 @@ Benefits:
 
 ## Gold Layer Data Products
 
-### customer_kpi
+### revenue_by_month
 
-Customer performance metrics and KPIs.
-
-### customer_category
-
-Customer segmentation and categorization.
-
-### revenue_by_location
-
-Revenue analysis by geographic location.
+Monthly revenue, order volume, freight, and average order value.
 
 ### top_customers
 
-High-value customer identification.
+Customers (by `customer_unique_id`) ranked by total spend, with order count, average order
+value, and recency — building blocks for a future RFM model.
+
+### top_products
+
+Products ranked by total revenue, with units sold and average review score.
 
 ---
 
